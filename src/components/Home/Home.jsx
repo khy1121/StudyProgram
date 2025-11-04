@@ -1,10 +1,11 @@
 // 홈 대시보드 컴포넌트
 // - 책임: 인사말, 간단 통계, 주요 액션 카드(빠른 시작/추천/이어서 학습), 최근 활동
-// - 인증: /api/auth/me 로 사용자 이름을 조회하여 인사말에 표시
+// - 인증: localAuth.getUser()로 로컬스토리지에서 사용자 이름 조회하여 인사말에 표시
 // - 추후 연동: 통계/최근활동은 백엔드 API 연동 예정
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import * as localAuth from '../../services/localAuth';
 import '../../styles/home.css';
 
 export default function Home() {
@@ -20,17 +21,14 @@ export default function Home() {
   const [userName, setUserName] = useState('사용자');
 
   useEffect(() => {
-    // localStorage에서 로그인한 사용자 정보 가져오기
+    // localAuth 서비스로 로그인한 사용자 정보 가져오기
     const fetchUser = async () => {
       try {
-        const currentUserData = localStorage.getItem('currentUser')
-        if (currentUserData) {
-          const user = JSON.parse(currentUserData)
-          console.log('User data from localStorage:', user)
-          console.log('Name field:', user.name)
-          if (user.name) {
-            setUserName(user.name)
-          }
+        const result = await localAuth.getUser()
+        console.log('User data from localAuth:', result)
+        if (result.success && result.user?.name) {
+          console.log('Name field:', result.user.name)
+          setUserName(result.user.name)
         } else {
           console.log('No user logged in')
           setUserName('사용자')

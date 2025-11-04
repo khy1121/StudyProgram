@@ -1,8 +1,9 @@
 // 회원가입 화면
-// - 책임: 이메일/이름/비밀번호 입력 검증, /api/auth/sign-up 호출, 성공 시 로그인 화면 이동
+// - 책임: 이메일/이름/비밀번호 입력 검증, 로컬 스토리지에 사용자 저장, 성공 시 로그인 화면 이동
 // - 비고: 비밀번호는 8자 이상, 확인 일치, 약관 동의 필요
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import * as localAuth from '../../services/localAuth'
 import '../../styles/auth.css'
 
 export default function SignIn() {
@@ -45,28 +46,13 @@ export default function SignIn() {
     try {
       setLoading(true)
       
-      // localStorage에서 기존 사용자 목록 가져오기
-      const usersData = localStorage.getItem('users')
-      const users = usersData ? JSON.parse(usersData) : []
+      // localAuth 서비스를 사용해 회원가입
+      const result = await localAuth.signup(email, name, password)
       
-      // 이메일 중복 체크
-      const existingUser = users.find(user => user.email === email)
-      if (existingUser) {
-        setError('이미 등록된 이메일입니다.')
+      if (!result.success) {
+        setError(result.message || '회원가입에 실패했습니다.')
         return
       }
-      
-      // 새 사용자 추가
-      const newUser = {
-        email,
-        name,
-        password,
-        createdAt: new Date().toISOString()
-      }
-      users.push(newUser)
-      
-      // localStorage에 저장
-      localStorage.setItem('users', JSON.stringify(users))
       
       // 회원가입 성공 - 로그인 페이지로 이동
       navigate('/auth/login', { replace: true })

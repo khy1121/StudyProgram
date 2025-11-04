@@ -1,8 +1,9 @@
 // 로그인 화면
-// - 책임: 자격 증명 입력/검증, /api/auth/login 호출, 성공 시 /home으로 이동
-// - 보안: 쿠키 기반 인증 → fetch에 credentials: 'include' 필수
+// - 책임: 자격 증명 입력/검증, 로컬 스토리지 기반 인증, 성공 시 /home으로 이동
+// - 보안: 프로토타입용 로컬 인증 (실제 운영에서는 백엔드 필요)
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import * as localAuth from '../../services/localAuth'
 import '../../styles/auth.css'
 
 export default function Login() {
@@ -13,7 +14,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // 폼 제출 처리: 기본 검증 후 localStorage에서 사용자 확인
+  // 폼 제출 처리: 기본 검증 후 localAuth 서비스로 로그인
   const onSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -31,24 +32,13 @@ export default function Login() {
     try {
       setLoading(true)
       
-      // localStorage에서 사용자 목록 가져오기
-      const usersData = localStorage.getItem('users')
-      const users = usersData ? JSON.parse(usersData) : []
+      // localAuth 서비스를 사용해 로그인
+      const result = await localAuth.login(email, password)
       
-      // 이메일과 비밀번호가 일치하는 사용자 찾기
-      const user = users.find(u => u.email === email && u.password === password)
-      
-      if (!user) {
-        setError('이메일 또는 비밀번호가 잘못되었습니다.')
+      if (!result.success) {
+        setError(result.message || '로그인에 실패했습니다.')
         return
       }
-      
-      // 로그인 성공 - 현재 로그인한 사용자 정보 저장
-      localStorage.setItem('currentUser', JSON.stringify({
-        email: user.email,
-        name: user.name,
-        loginAt: new Date().toISOString()
-      }))
       
       navigate('/home', { replace: true })
     } catch (e) {
