@@ -98,6 +98,20 @@
   /* 그림자 */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* 퀴즈/시험 모드 */
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-darker: #1d4ed8;
+  --primary-rgb: 37, 99, 235;
+  
+  --success: #059669;
+  --success-light: #d1fae5;
+  --success-darker: #047857;
+  
+  --error: #dc2626;
+  --error-light: #fee2e2;
+  --error-darker: #b91c1c;
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
   
   /* 슬라이더 */
